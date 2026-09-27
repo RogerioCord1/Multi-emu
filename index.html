@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Game Hub - Com Capas Automáticas</title>
+    <title>Retro Game Hub</title>
     <style>
         :root {
             --bg-color: #0f1016;
@@ -261,7 +261,7 @@
 
     <header>
         <h1>Retro Game Hub</h1>
-        <p class="subtitle">Sua biblioteca clássica com capas automáticas</p>
+        <p class="subtitle">Sua biblioteca clássica com CDN Oficial</p>
     </header>
 
     <div class="container">
@@ -278,7 +278,7 @@
         </div>
 
         <div class="game-grid" id="gameGrid">
-            <div class="loading">A varrer o repositório e a carregar as capas... 🎮</div>
+            <div class="loading">A carregar os jogos... 🎮</div>
         </div>
     </div>
 
@@ -292,9 +292,9 @@
     </div>
 
     <script>
-        // Configurado automaticamente com os teus dados do GitHub
         const GITHUB_USER = "RogerioCord1";
         const GITHUB_REPO = "Multi-emu";
+        let activeBranch = "main";
 
         const libretroRepos = {
             'snes': 'Nintendo_-_Super_Nintendo_Entertainment_System',
@@ -311,6 +311,7 @@
                 let dados = await resposta.json();
 
                 if (!dados.tree) {
+                    activeBranch = "master";
                     resposta = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/master?recursive=1`);
                     dados = await resposta.json();
                 }
@@ -318,7 +319,7 @@
                 if (dados.tree) {
                     processarArquivos(dados.tree);
                 } else {
-                    document.getElementById('gameGrid').innerHTML = `<div class="no-games">Não foi possível ler o repositório. Verifica se o nome do repositório está correto.</div>`;
+                    document.getElementById('gameGrid').innerHTML = `<div class="no-games">Não foi possível ler o repositório.</div>`;
                 }
             } catch (erro) {
                 console.error("Erro:", erro);
@@ -333,7 +334,7 @@
                 if (item.path.startsWith('roms/')) {
                     const partes = item.path.split('/');
                     if (partes.length >= 3) {
-                        const consoleName = partes[1]; // nes, snes, megadrive
+                        const consoleName = partes[1];
                         const nomeArquivo = partes[partes.length - 1];
 
                         if (['.zip', '.sfc', '.nes', '.bin'].some(ext => nomeArquivo.endsWith(ext))) {
@@ -347,10 +348,13 @@
                                 imageUrl = `https://raw.githubusercontent.com/libretro-thumbnails/${libretroRepos[consoleName]}/master/Named_Boxarts/${encodeURIComponent(baseName)}.png`;
                             }
 
+                            const encodedPath = item.path.split('/').map(encodeURIComponent).join('/');
+                            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${activeBranch}/${encodedPath}`;
+
                             listaJogos.push({
                                 nome: nomeLimpo,
                                 console: consoleName,
-                                url: `./${item.path}`,
+                                url: rawUrl,
                                 imageUrl: imageUrl
                             });
                         }
@@ -428,14 +432,15 @@
                 window.EJS_core = 'segaMD';
             }
 
-            window.EJS_pathtodata = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/';
+            // ATUALIZADO: Utiliza a CDN oficial do EmulatorJS para evitar bloqueios de rede
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
 
             let scriptExistente = document.getElementById('ejs-script');
             if (scriptExistente) scriptExistente.remove();
 
             let script = document.createElement('script');
             script.id = 'ejs-script';
-            script.src = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/loader.js';
+            script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
             document.body.appendChild(script);
         }
 
