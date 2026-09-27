@@ -278,25 +278,24 @@
         </div>
 
         <div class="game-grid" id="gameGrid">
-            <div class="loading">Varrendo repositório e buscando capas... 🎮</div>
+            <div class="loading">A varrer o repositório e a carregar as capas... 🎮</div>
         </div>
     </div>
 
     <!-- Tela do Emulador -->
     <div id="emulator-container">
         <div class="emulator-header">
-            <span id="playing-title" style="font-weight: bold; color: white;">Carregando...</span>
+            <span id="playing-title" style="font-weight: bold; color: white;">A carregar...</span>
             <button class="close-btn" onclick="fecharEmulador()">Sair do Jogo</button>
         </div>
         <div id="game"></div>
     </div>
 
     <script>
-        // ⚠️ COLOQUE SEU USUÁRIO E NOME DO REPOSITÓRIO DO GITHUB AQUI
-        const GITHUB_USER = "SEU_USUARIO_DO_GITHUB";
-        const GITHUB_REPO = "NOME_DO_REPOSITORIO";
+        // Configurado automaticamente com os teus dados do GitHub
+        const GITHUB_USER = "RogerioCord1";
+        const GITHUB_REPO = "Multi-emu";
 
-        // Mapeamento dos consoles para o banco de dados oficial de capas da comunidade
         const libretroRepos = {
             'snes': 'Nintendo_-_Super_Nintendo_Entertainment_System',
             'nes': 'Nintendo_-_Nintendo_Entertainment_System',
@@ -319,11 +318,11 @@
                 if (dados.tree) {
                     processarArquivos(dados.tree);
                 } else {
-                    document.getElementById('gameGrid').innerHTML = `<div class="no-games">Não foi possível ler o repositório. Verifique se o nome do usuário e do repositório estão corretos no código.</div>`;
+                    document.getElementById('gameGrid').innerHTML = `<div class="no-games">Não foi possível ler o repositório. Verifica se o nome do repositório está correto.</div>`;
                 }
             } catch (erro) {
                 console.error("Erro:", erro);
-                document.getElementById('gameGrid').innerHTML = `<div class="no-games">Erro ao conectar com a API do GitHub.</div>`;
+                document.getElementById('gameGrid').innerHTML = `<div class="no-games">Erro ao ligar à API do GitHub.</div>`;
             }
         }
 
@@ -340,14 +339,11 @@
                         if (['.zip', '.sfc', '.nes', '.bin'].some(ext => nomeArquivo.endsWith(ext))) {
                             const baseName = nomeArquivo.replace(/\.[^/.]+$/, "");
                             
-                            // Nome limpo para exibição no card
                             let nomeLimpo = baseName.replace(/[_-_]/g, " ");
                             nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
 
-                            // URL da capa no repositório oficial do Libretro
                             let imageUrl = '';
                             if (libretroRepos[consoleName]) {
-                                // Tenta buscar a capa usando o nome base exato do arquivo
                                 imageUrl = `https://raw.githubusercontent.com/libretro-thumbnails/${libretroRepos[consoleName]}/master/Named_Boxarts/${encodeURIComponent(baseName)}.png`;
                             }
 
@@ -418,7 +414,7 @@
         }
 
         function iniciarJogo(jogo) {
-            document.getElementById('playing-title').innerText = `Jogando: ${jogo.nome}`;
+            document.getElementById('playing-title').innerText = `A jogar: ${jogo.nome}`;
             document.getElementById('emulator-container').style.display = 'flex';
 
             window.EJS_player = '#game';
