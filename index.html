@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Game Hub</title>
+    <title>RCS Retro Vault - Retro Game Hub</title>
+    <!-- Importa fontes estilo arcade/gaming do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0f1016;
@@ -31,22 +33,48 @@
 
         header {
             background: linear-gradient(135deg, #1e1b4b 0%, #0f1016 100%);
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem;
             text-align: center;
             border-bottom: 2px solid #2e2a72;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Logótipo Personalizado com o Controlo de SNES */
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-icon-svg {
+            filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.7));
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5)); }
+            100% { filter: drop-shadow(0 0 16px rgba(244, 114, 182, 0.8)); }
         }
 
         h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #a78bfa, #f472b6);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, #a78bfa, #f472b6, #38bdf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            letter-spacing: 2px;
         }
 
         p.subtitle {
             color: var(--text-muted);
             font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         .container {
@@ -93,6 +121,7 @@
             background-color: var(--accent);
             color: white;
             border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
         }
 
         .search-box {
@@ -115,6 +144,7 @@
 
         .search-box input:focus {
             border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
         }
 
         .search-box::before {
@@ -145,7 +175,7 @@
 
         .game-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
             border-color: var(--accent);
         }
 
@@ -238,6 +268,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.2s;
         }
 
         .close-btn:hover { background-color: #dc2626; }
@@ -260,8 +291,28 @@
 <body>
 
     <header>
-        <h1>Retro Game Hub</h1>
-        <p class="subtitle">Sua biblioteca clássica</p>
+        <div class="logo-container">
+            <!-- Logótipo Vetorial de um Controlo de SNES -->
+            <svg class="logo-icon-svg" viewBox="0 0 64 36" width="60" height="34" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="4" width="60" height="28" rx="14" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+                <path d="M12 4 C6 4 2 10 2 18 C2 26 6 32 12 32 Z" fill="#94a3b8" opacity="0.5"/>
+                <path d="M52 4 C58 4 62 10 62 18 C62 26 58 32 52 32 Z" fill="#94a3b8" opacity="0.5"/>
+                <g fill="#1e293b">
+                    <rect x="14" y="14" width="4" height="10" rx="1"/>
+                    <rect x="11" y="17" width="10" height="4" rx="1"/>
+                </g>
+                <g fill="#475569" transform="rotate(-20 28 20)">
+                    <rect x="25" y="18" width="5" height="2.5" rx="1"/>
+                    <rect x="32" y="18" width="5" height="2.5" rx="1"/>
+                </g>
+                <circle cx="46" cy="19" r="2.5" fill="#ef4444"/>
+                <circle cx="52" cy="22" r="2.5" fill="#f59e0b"/>
+                <circle cx="43" cy="22" r="2.5" fill="#3b82f6"/>
+                <circle cx="49" cy="25" r="2.5" fill="#10b981"/>
+            </svg>
+            <h1>RCS RETRO VAULT</h1>
+        </div>
+        <p class="subtitle">O acervo clássico pessoal de Rogério C. Schiavinato</p>
     </header>
 
     <div class="container">
@@ -278,7 +329,7 @@
         </div>
 
         <div class="game-grid" id="gameGrid">
-            <div class="loading">A carregar os jogos... 🎮</div>
+            <div class="loading">A carregar o cofre clássico... 🎮</div>
         </div>
     </div>
 
@@ -446,7 +497,6 @@
         function fecharEmulador() {
             document.getElementById('emulator-container').style.display = 'none';
             
-            // Destrói e recria o elemento do jogo para matar qualquer áudio ou thread ativa em segundo plano
             const gameDiv = document.getElementById('game');
             if (gameDiv) {
                 const parent = gameDiv.parentNode;
@@ -459,7 +509,6 @@
             let scriptExistente = document.getElementById('ejs-script');
             if (scriptExistente) scriptExistente.remove();
 
-            // Limpa as variáveis globais do emulador
             window.EJS_player = null;
             window.EJS_gameUrl = null;
             window.EJS_core = null;
