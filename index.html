@@ -261,7 +261,7 @@
 
     <header>
         <h1>Retro Game Hub</h1>
-        <p class="subtitle">Sua biblioteca clássica com CDN Oficial</p>
+        <p class="subtitle">Sua biblioteca clássica</p>
     </header>
 
     <div class="container">
@@ -432,7 +432,6 @@
                 window.EJS_core = 'segaMD';
             }
 
-            // ATUALIZADO: Utiliza a CDN oficial do EmulatorJS para evitar bloqueios de rede
             window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
 
             let scriptExistente = document.getElementById('ejs-script');
@@ -446,9 +445,27 @@
 
         function fecharEmulador() {
             document.getElementById('emulator-container').style.display = 'none';
-            document.getElementById('game').innerHTML = '';
+            
+            // Destrói e recria o elemento do jogo para matar qualquer áudio ou thread ativa em segundo plano
+            const gameDiv = document.getElementById('game');
+            if (gameDiv) {
+                const parent = gameDiv.parentNode;
+                gameDiv.remove();
+                const newGameDiv = document.createElement('div');
+                newGameDiv.id = 'game';
+                parent.appendChild(newGameDiv);
+            }
+
             let scriptExistente = document.getElementById('ejs-script');
             if (scriptExistente) scriptExistente.remove();
+
+            // Limpa as variáveis globais do emulador
+            window.EJS_player = null;
+            window.EJS_gameUrl = null;
+            window.EJS_core = null;
+            if (window.EJS_emulator) {
+                window.EJS_emulator = null;
+            }
         }
 
         window.onload = carregarJogosAutomaticamente;
