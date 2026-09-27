@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Game Hub - Com Capas Automáticas</title>
+    <style>
+        :root {
+            --bg-color: #0f1016;
+            --card-bg: #1a1c29;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f1016 100%);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 2px solid #2e2a72;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        .controls-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media(min-width: 768px) {
+            .controls-bar {
+                flex-direction: row;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            border: 1px solid #2d3748;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid #2d3748;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2d3748;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+            border-color: var(--accent);
+        }
+
+        .game-thumb-container {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(45deg, #2d3748, #1a1c29);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover .game-thumb {
+            transform: scale(1.05);
+        }
+
+        .fallback-icon {
+            font-size: 3rem;
+            color: #4a5568;
+            position: absolute;
+        }
+
+        .game-info {
+            padding: 0.8rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            flex: 1;
+        }
+
+        .game-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-console {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            align-self: flex-start;
+            font-weight: bold;
+        }
+
+        .badge-nes { background-color: #dc2626; color: white; }
+        .badge-snes { background-color: #2563eb; color: white; }
+        .badge-megadrive { background-color: #ca8a04; color: white; }
+
+        /* Tela do Emulador */
+        #emulator-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .emulator-header {
+            background-color: #1a1c29;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .close-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .close-btn:hover { background-color: #dc2626; }
+
+        #game {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+
+        .no-games, .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Retro Game Hub</h1>
+        <p class="subtitle">Sua biblioteca clássica com capas automáticas</p>
+    </header>
+
+    <div class="container">
+        <div class="controls-bar">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="filtrarConsole('all', this)">Todos</button>
+                <button class="tab-btn" onclick="filtrarConsole('nes', this)">NES</button>
+                <button class="tab-btn" onclick="filtrarConsole('snes', this)">SNES</button>
+                <button class="tab-btn" onclick="filtrarConsole('megadrive', this)">Mega Drive</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar jogo..." oninput="pesquisarJogos()">
+            </div>
+        </div>
+
+        <div class="game-grid" id="gameGrid">
+            <div class="loading">Varrendo repositório e buscando capas... 🎮</div>
+        </div>
+    </div>
+
+    <!-- Tela do Emulador -->
+    <div id="emulator-container">
+        <div class="emulator-header">
+            <span id="playing-title" style="font-weight: bold; color: white;">Carregando...</span>
+            <button class="close-btn" onclick="fecharEmulador()">Sair do Jogo</button>
+        </div>
+        <div id="game"></div>
+    </div>
+
+    <script>
+        // ⚠️ COLOQUE SEU USUÁRIO E NOME DO REPOSITÓRIO DO GITHUB AQUI
+        const GITHUB_USER = "SEU_USUARIO_DO_GITHUB";
+        const GITHUB_REPO = "NOME_DO_REPOSITORIO";
+
+        // Mapeamento dos consoles para o banco de dados oficial de capas da comunidade
+        const libretroRepos = {
+            'snes': 'Nintendo_-_Super_Nintendo_Entertainment_System',
+            'nes': 'Nintendo_-_Nintendo_Entertainment_System',
+            'megadrive': 'Sega_-_Mega_Drive_-_Genesis'
+        };
+
+        let listaJogos = [];
+        let consoleAtual = 'all';
+
+        async function carregarJogosAutomaticamente() {
+            try {
+                let resposta = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/main?recursive=1`);
+                let dados = await resposta.json();
+
+                if (!dados.tree) {
+                    resposta = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/master?recursive=1`);
+                    dados = await resposta.json();
+                }
+
+                if (dados.tree) {
+                    processarArquivos(dados.tree);
+                } else {
+                    document.getElementById('gameGrid').innerHTML = `<div class="no-games">Não foi possível ler o repositório. Verifique se o nome do usuário e do repositório estão corretos no código.</div>`;
+                }
+            } catch (erro) {
+                console.error("Erro:", erro);
+                document.getElementById('gameGrid').innerHTML = `<div class="no-games">Erro ao conectar com a API do GitHub.</div>`;
+            }
+        }
+
+        function processarArquivos(tree) {
+            listaJogos = [];
+
+            tree.forEach(item => {
+                if (item.path.startsWith('roms/')) {
+                    const partes = item.path.split('/');
+                    if (partes.length >= 3) {
+                        const consoleName = partes[1]; // nes, snes, megadrive
+                        const nomeArquivo = partes[partes.length - 1];
+
+                        if (['.zip', '.sfc', '.nes', '.bin'].some(ext => nomeArquivo.endsWith(ext))) {
+                            const baseName = nomeArquivo.replace(/\.[^/.]+$/, "");
+                            
+                            // Nome limpo para exibição no card
+                            let nomeLimpo = baseName.replace(/[_-_]/g, " ");
+                            nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
+
+                            // URL da capa no repositório oficial do Libretro
+                            let imageUrl = '';
+                            if (libretroRepos[consoleName]) {
+                                // Tenta buscar a capa usando o nome base exato do arquivo
+                                imageUrl = `https://raw.githubusercontent.com/libretro-thumbnails/${libretroRepos[consoleName]}/master/Named_Boxarts/${encodeURIComponent(baseName)}.png`;
+                            }
+
+                            listaJogos.push({
+                                nome: nomeLimpo,
+                                console: consoleName,
+                                url: `./${item.path}`,
+                                imageUrl: imageUrl
+                            });
+                        }
+                    }
+                }
+            });
+
+            renderizarJogos(listaJogos);
+        }
+
+        function renderizarJogos(jogos) {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+
+            const termoBusca = document.getElementById('searchInput').value.toLowerCase();
+
+            const jogosFiltrados = jogos.filter(jogo => {
+                const matchConsole = consoleAtual === 'all' || jogo.console === consoleAtual;
+                const matchBusca = jogo.nome.toLowerCase().includes(termoBusca);
+                return matchConsole && matchBusca;
+            });
+
+            if (jogosFiltrados.length === 0) {
+                grid.innerHTML = `<div class="no-games">Nenhum jogo encontrado.</div>`;
+                return;
+            }
+
+            jogosFiltrados.forEach(jogo => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => iniciarJogo(jogo);
+
+                let iconeConsole = '🎮';
+                if (jogo.console === 'snes') iconeConsole = '🕹️';
+                if (jogo.console === 'nes') iconeConsole = '👾';
+                if (jogo.console === 'megadrive') iconeConsole = '⚡';
+
+                card.innerHTML = `
+                    <div class="game-thumb-container">
+                        <span class="fallback-icon">${iconeConsole}</span>
+                        ${jogo.imageUrl ? `<img class="game-thumb" src="${jogo.imageUrl}" alt="${jogo.nome}" onerror="this.style.display='none'">` : ''}
+                    </div>
+                    <div class="game-info">
+                        <span class="game-console badge-${jogo.console}">${jogo.console}</span>
+                        <div class="game-title" title="${jogo.nome}">${jogo.nome}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrarConsole(consoleName, btnElement) {
+            consoleAtual = consoleName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderizarJogos(listaJogos);
+        }
+
+        function pesquisarJogos() {
+            renderizarJogos(listaJogos);
+        }
+
+        function iniciarJogo(jogo) {
+            document.getElementById('playing-title').innerText = `Jogando: ${jogo.nome}`;
+            document.getElementById('emulator-container').style.display = 'flex';
+
+            window.EJS_player = '#game';
+            window.EJS_gameUrl = jogo.url;
+            
+            if (jogo.console === 'snes') {
+                window.EJS_core = 'snes9x';
+            } else if (jogo.console === 'nes') {
+                window.EJS_core = 'nes';
+            } else if (jogo.console === 'megadrive') {
+                window.EJS_core = 'segaMD';
+            }
+
+            window.EJS_pathtodata = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/';
+
+            let scriptExistente = document.getElementById('ejs-script');
+            if (scriptExistente) scriptExistente.remove();
+
+            let script = document.createElement('script');
+            script.id = 'ejs-script';
+            script.src = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/loader.js';
+            document.body.appendChild(script);
+        }
+
+        function fecharEmulador() {
+            document.getElementById('emulator-container').style.display = 'none';
+            document.getElementById('game').innerHTML = '';
+            let scriptExistente = document.getElementById('ejs-script');
+            if (scriptExistente) scriptExistente.remove();
+        }
+
+        window.onload = carregarJogosAutomaticamente;
+    </script>
+</body>
+</html>
