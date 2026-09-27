@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Game Hub - Corrigido</title>
+    <title>Retro Game Hub</title>
     <style>
         :root {
             --bg-color: #0f1016;
@@ -261,11 +261,10 @@
 
     <header>
         <h1>Retro Game Hub</h1>
-        <p class="subtitle">Sua biblioteca clássica com carregamento corrigido</p>
+        <p class="subtitle">Sua biblioteca clássica com CDN Oficial</p>
     </header>
 
     <div class="container">
-
         <div class="controls-bar">
             <div class="tabs">
                 <button class="tab-btn active" onclick="filtrarConsole('all', this)">Todos</button>
@@ -279,7 +278,7 @@
         </div>
 
         <div class="game-grid" id="gameGrid">
-            <div class="loading">A carregar os jogos e capas... 🎮</div>
+            <div class="loading">A carregar os jogos... 🎮</div>
         </div>
     </div>
 
@@ -335,7 +334,7 @@
                 if (item.path.startsWith('roms/')) {
                     const partes = item.path.split('/');
                     if (partes.length >= 3) {
-                        const consoleName = partes[1]; // nes, snes, megadrive
+                        const consoleName = partes[1];
                         const nomeArquivo = partes[partes.length - 1];
 
                         if (['.zip', '.sfc', '.nes', '.bin'].some(ext => nomeArquivo.endsWith(ext))) {
@@ -349,7 +348,6 @@
                                 imageUrl = `https://raw.githubusercontent.com/libretro-thumbnails/${libretroRepos[consoleName]}/master/Named_Boxarts/${encodeURIComponent(baseName)}.png`;
                             }
 
-                            // Codifica corretamente cada pasta e o nome do ficheiro para evitar erros de URL com espaços e parênteses
                             const encodedPath = item.path.split('/').map(encodeURIComponent).join('/');
                             const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${activeBranch}/${encodedPath}`;
 
@@ -434,14 +432,15 @@
                 window.EJS_core = 'segaMD';
             }
 
-            window.EJS_pathtodata = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/';
+            // ATUALIZADO: Utiliza a CDN oficial do EmulatorJS para evitar bloqueios de rede
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
 
             let scriptExistente = document.getElementById('ejs-script');
             if (scriptExistente) scriptExistente.remove();
 
             let script = document.createElement('script');
             script.id = 'ejs-script';
-            script.src = 'https://raw.githubusercontent.com/EmulatorJS/EmulatorJS/main/data/loader.js';
+            script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
             document.body.appendChild(script);
         }
 
