@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCS Retro Vault </title>
+    <title>RCS Retro Vault</title>
     <!-- Importa fontes estilo arcade/gaming do Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -497,13 +497,19 @@
         function fecharEmulador() {
             document.getElementById('emulator-container').style.display = 'none';
             
+            // Remove todas as iframes criadas pelo emulador para cortar o som na hora
+            document.querySelectorAll('iframe').forEach(iframe => iframe.remove());
+            
+            // Pausa e limpa qualquer elemento de áudio/vídeo residual
+            document.querySelectorAll('audio, video').forEach(media => {
+                media.pause();
+                media.src = '';
+                media.remove();
+            });
+
             const gameDiv = document.getElementById('game');
             if (gameDiv) {
-                const parent = gameDiv.parentNode;
-                gameDiv.remove();
-                const newGameDiv = document.createElement('div');
-                newGameDiv.id = 'game';
-                parent.appendChild(newGameDiv);
+                gameDiv.innerHTML = '';
             }
 
             let scriptExistente = document.getElementById('ejs-script');
